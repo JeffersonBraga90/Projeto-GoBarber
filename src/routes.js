@@ -8,9 +8,8 @@ import AuthMiddleware from './app/middlewares/auth';
 const routes = new Router();
 
 routes.post('/sessions', SessionController.store);
-
-routes.use(AuthMiddleware);
-
 routes.post('/students', StudentsController.store);
+routes.use(AuthMiddleware);
+routes.put('/students/:id', StudentsController.update);
 
 export default routes;
