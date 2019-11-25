@@ -3,14 +3,36 @@ import Students from '../models/Students';
 
 class StudentsController {
   async store(req, res) {
-    const students = await Students.create({
-      name: 'Jefferson Corrêa Braga',
-      email: 'jefferson.braga.correa@gmail.com',
-      idade: '29',
-      peso: 73,
-      altura: 1.71,
+    const schema = Yup.object().shape({
+      name: Yup.string().required(),
+      email: Yup.string()
+        .email()
+        .required(),
+      idade: Yup.number().required(),
     });
-    return res.json(students);
+
+    if (!(await schema.isValid(req.body))) {
+      return res.status(400).json({ error: 'Validation fails' });
+    }
+
+    const { email } = req.body;
+
+    const studentsExists = await Students.findOne({ where: { email } });
+
+    if (studentsExists) {
+      return res.status(400).json({ error: 'Students already exists.' });
+    }
+
+    const { id, name, idade, peso, altura } = await Students.create(req.body);
+
+    return res.json({
+      id,
+      name,
+      email,
+      idade,
+      peso,
+      altura,
+    });
   }
 
   async update(req, res) {
@@ -30,7 +52,7 @@ class StudentsController {
       const studentsExists = await Students.findOne({ where: { email } });
 
       if (studentsExists) {
-        return res.status(400).json({ error: 'User already exists.' });
+        return res.status(400).json({ error: 'Students already exists.' });
       }
     }
 
